@@ -2,10 +2,22 @@
   "name": "xes-backend",
   "version": "1.0.0",
   "description": "XeSports Platform backend development.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/app.js"
   },
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "nodejs",
+    "expressjs",
+    "mongodb",
+    "backend",
+    "esports_platform"
+  ],
+  "author": "abinashnimz",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
 }
