@@ -4,6 +4,9 @@ import cors from 'cors'
 import helmet from 'helmet'
 // import geoip from 'geoip-lite'
 
+
+import userRoute from "../components/user/user.route.js";
+
 export default (app) => {
 
 	// Helmet helps you secure your Express apps by setting various HTTP headers. It's not a silver bullet, but it can help!
