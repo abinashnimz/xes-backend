@@ -9,3 +9,10 @@ export const signup = Joi.object({
 		password: Joi.string().min(8).required()
 	}).required()
 }).required()
+
+export const login = Joi.object({
+	criteria: Joi.object({
+		email: Joi.string().email().required(),
+		password: Joi.string().required()
+	}).required()
+}).required()
