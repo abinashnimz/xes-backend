@@ -20,5 +20,5 @@ export default Object.freeze({
 		}
 	},
 	SALT_WORK_FACTOR: 12,
-	JWT_SECRET: 'kgb7axy7rn0wux15axgx4anysereym20o7ia22fnx8e56lseym5reslv0oj5k1rzeeg',
+	JWT_SECRET: process.env.SECRET_KEY,
 });
