@@ -35,3 +35,16 @@ export const findOne = async (req, res) => {
 		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
 	}
 }
+
+export const findAll = async (req, res) => {
+	try {
+		console.log(req.body);
+		const { criteria, project, sort, skip, limit } = req.body
+		const game = await mongooseAbstract.findAll(criteria, project, sort, skip, limit)
+		return res.json(game)
+	} catch (error) {
+		console.log(error);
+		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
+		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
+	}
+}
