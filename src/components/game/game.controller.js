@@ -22,3 +22,16 @@ export const create = async (req, res) => {
 		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
 	}
 }
+
+export const findOne = async (req, res) => {
+	try {
+		const criteria = {
+			_id: req.params.id
+		}
+		const game = await mongooseAbstract.findOne(criteria, '-createdAt -updatedAt')
+		return res.json(game)
+	} catch (error) {
+		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
+		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
+	}
+}
