@@ -52,12 +52,13 @@ export const findAll = async (req, res) => {
 
 export const updateOne = async (req, res) => {
 	try {
-		const validatedData = await GameValidation.updateOne.validateAsync(req.body)
-		const { criteria, data } = validatedData
-		data['updatedBy'] = req?.user?._id
+		const validatedData = await GameValidation.updateOne.validateAsync(req.body);
+		const { criteria, data } = validatedData;
+		data['updatedBy'] = req?.user?._id;
 		const game = await mongooseAbstract.updateOne(criteria._id, data)
 		return res.json(game)
 	} catch (error) {
+        console.log(error);
 		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
 		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
 	}
