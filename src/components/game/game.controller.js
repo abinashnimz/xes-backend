@@ -2,6 +2,7 @@ import constant from "../../constant.js";
 import Game from "./game.model.js";
 import customMongooseAbstract from "../../services/mongoose.abstract.js";
 import * as GameValidation from "./game.validation.js";
+import * as CommonService from "../../services/common.service.js";
 
 
 const mongooseAbstract = customMongooseAbstract(Game);
@@ -48,3 +49,19 @@ export const findAll = async (req, res) => {
 		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
 	}
 }
+
+export const updateOne = async (req, res) => {
+	try {
+		const validatedData = await GameValidation.updateOne.validateAsync(req.body)
+		const { criteria, data } = validatedData
+		data['updatedBy'] = req?.user?._id
+		const game = await mongooseAbstract.updateOne(criteria._id, data)
+		return res.json(game)
+	} catch (error) {
+		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
+		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
+	}
+}
+
+export const deleteOne = CommonService.DeleteOne(Game);
+export const gameCount = CommonService.CountDocuments(Game);
