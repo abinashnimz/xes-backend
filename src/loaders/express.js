@@ -7,6 +7,7 @@ import helmet from 'helmet'
 
 import userRoute from "../components/user/user.route.js";
 import gameRoute from "../components/game/game.route.js";
+import sliderRoute from "../components/slider/slider.route.js";
 
 export default (app) => {
 
@@ -25,6 +26,7 @@ export default (app) => {
 	// Load API routes
 	app.use('/v1/user', userRoute);
 	app.use('/v1/game', gameRoute);
+	app.use('/v1/slider', sliderRoute);
 
 	// For testing backend is working or not
 	app.get('/test', (req, res) => {

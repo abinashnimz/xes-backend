@@ -10,6 +10,7 @@ export const CountDocuments =  DOCUMENT => async (req, res) => {
 		const count = await mongooseAbstract.countDocuments(criteria)
 		return res.json({ count })
 	} catch (error) {
+		console.log(error);
 		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
 		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
 	}
