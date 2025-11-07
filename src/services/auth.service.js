@@ -45,13 +45,18 @@ const verifyJwtToken = SECRET => (req, res, next) => {
 const generateJwtTokenEmailVerification = SECRET => ({ _id }) => jwt.sign({ userId: _id }, SECRET, { expiresIn: '1d' });
 
 const verifyJwtTokenEmailVerification = SECRET => (req, res, next) => {
+	console.log("Email verification middlware start");
+	console.log(req.query.token);
 	const authHeader = req.headers.authorization
+	console.log(authHeader);
 	if (!authHeader) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json('No JWT token provided');
 	const token = getToken(authHeader);
+	console.log(token);
 	jwt.verify(token, SECRET, (err, data) => {
 		if (err) return res.sendStatus(constant.RESPONSE.UNAUTHORIZED.STATUS);
 		if (!data?.userId) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json('No user id found in token');
 		req['user'] = data;
+		console.log("Email verification middlware end")
 		next();
 	});
 }
