@@ -2,6 +2,7 @@ import constant from '../../constant.js';
 import User from './user.model.js';
 import * as UserValidation from "./user.validation.js";
 import * as AuthService from "../../services/auth.service.js";
+import * as EmailService from "../emailer/emailerService.js";
 import customMongooseAbstract from "../../services/mongoose.abstract.js";
 
 import fp from '../../services/fp.service.js'
@@ -20,11 +21,11 @@ export const signup = async (req, res) => {
 		if (emailCount > 0) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json({ message: 'Email already exists', type: 'email-error' });
 		if (usernameCount > 0) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json({ message: 'Username already exists', type: 'username-error' });
         data.password = await AuthService.hashPasswordBcrypt(data.password);
-		await mongooseAbstract.create(data).then(user => user.toObject());
-		// auth token creation codes will go here
-
-		res.status(constant.RESPONSE.OK.STATUS).send({ message: 'Registration Successful' });
-
+		const createdUser = await mongooseAbstract.create(data).then(user => user.toObject());
+		const emailToken = AuthService.getEmailVerificationToken(createdUser);
+		console.log(`Email token from user-controller: ${emailToken}`);
+		EmailService.sendEmailVerificationMail(createdUser.username, emailToken, createdUser.email);
+		res.status(constant.RESPONSE.OK.STATUS).setHeader("Authorization", `Bearer ${emailToken}`).send({ message: 'Registration Successful' });
 	} catch (error) {
         console.log(error);
 		if(error) res.status(400).send(error);
@@ -49,6 +50,25 @@ export const login = async (req, res) => {
 		const token = AuthService.generateAuthToken(user);
 		console.log(`Token is: ${token}`);
 		return res.json({ ...pick(['username', 'role', '_id'], user), token });
+	} catch (error) {
+		console.log(error)
+		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
+		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
+	}
+}
+
+export const verifyEmail = async (req, res) => {
+	try {
+		console.log("verification started");
+		const _id = req?.user?.userId
+		console.log(req.user);
+		console.log(_id);
+		if (!_id) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid Token')
+		const user = await mongooseAbstract.findOne({ _id }, 'isVerified')
+		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid User ID')
+		if (user.isVerified) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('User Already verified')
+		await mongooseAbstract.updateOne(_id, { isVerified: true })
+		return res.sendStatus(constant.RESPONSE.OK.STATUS)
 	} catch (error) {
 		console.log(error)
 		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)

@@ -1,6 +1,6 @@
 'use strict'
 export default Object.freeze({
-	MONGODB_URL: process.env.MONGODB_URI_DEV || 'mongodb://127.0.0.1:27017/xesports-api-services-test',
+	MONGODB_URL: process.env.MONGODB_URI,
 	APP_DEBUG: process.env.APP_DEBUG === 'true',
 	PORT: process.env.PORT || 3009,
 	RESPONSE: {
@@ -20,5 +20,12 @@ export default Object.freeze({
 		}
 	},
 	SALT_WORK_FACTOR: 12,
-	JWT_SECRET: 'kgb7axy7rn0wux15axgx4anysereym20o7ia22fnx8e56lseym5reslv0oj5k1rzeeg',
+	JWT_SECRET: process.env.SECRET_KEY,
+	SUPPORT_EMAIL: process.env.SUPPORT_EMAIL,
+	SUPPORT_EMAIL_HEAD: process.env.SUPPORT_EMAIL_HEAD,
+	SMTP_HOST: process.env.SMTP_HOST,
+	SMTP_USER: process.env.SMTP_USER,
+	SMTP_KEY: process.env.SMTP_KEY,
+	SMTP_PORT: process.env.SMTP_PORT,
+	SMTP_WEBSITE: process.env.SMTP_WEBSITE,
 });
