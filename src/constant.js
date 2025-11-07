@@ -28,4 +28,5 @@ export default Object.freeze({
 	SMTP_KEY: process.env.SMTP_KEY,
 	SMTP_PORT: process.env.SMTP_PORT,
 	SMTP_WEBSITE: process.env.SMTP_WEBSITE,
+	BREVO_API_KEY: process.env.BREVO_API_KEY,
 });
