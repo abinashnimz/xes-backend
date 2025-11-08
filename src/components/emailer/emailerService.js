@@ -55,3 +55,21 @@ export const sendEmailVerificationMail = async (username, token, email) => {
     html
   });
 };
+
+export const sendPasswordRecoveryMail = async (username, token, email) => {
+  console.log("📧 sendPasswordRecoveryMail working");
+
+  const verificationLink = `${process.env.FRONTEND_URL}/reset/password?token=${token}`;
+  const html = `
+    <p>Hi ${username},</p>
+    <p>Please click the below link to reset your Password:</p>
+    <p><a href="${verificationLink}" target="_blank">Verify Email</a></p>
+    <p>If you did not create this account, please ignore this email.</p>
+  `;
+
+  await sendMail({
+    to: email,
+    subject: "XESPORTS - Reset Your Password",
+    html
+  });
+};

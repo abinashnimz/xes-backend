@@ -74,3 +74,31 @@ export const verifyEmail = async (req, res) => {
 		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
 	}
 }
+
+export const sendPasswordVerification = async (req, res) => {
+	try {
+		const validatedData = await UserValidation.sendPasswordVerification.validateAsync(req.body);
+		const { data } = validatedData;
+		const user = await mongooseAbstract.findOne({ email: data.email });
+		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json({ type: 'email-error', message: 'Email not exist in database' });
+		const emailToken = AuthService.getPasswordRecoveryToken(user);
+		EmailService.sendPasswordRecoveryMail(user.username, emailToken, user.email);
+		return res.status(constant.RESPONSE.OK.STATUS).send({ type: 'success', message: 'Password recovery mail send Successfully' });
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+export const resetPassword = async (req, res) => {
+	try {
+		const validatedData = await UserValidation.resetPassword.validateAsync(req.body);
+		const { data } = validatedData;
+		console.log(`Validation Password Data: ${JSON.stringify(data)}`);
+		data.password = await AuthService.hashPasswordBcrypt(data.password);
+		await mongooseAbstract.updateOne(req.user.userId, { password: data.password });
+		return res.status(constant.RESPONSE.OK.STATUS).send({ type: 'success', message: 'Password Reset Successfully' });
+	} catch (error) {
+		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error);
+		return res.sendStatus(constant.RESPONSE.ERROR.STATUS);
+	}
+}
