@@ -59,16 +59,15 @@ export const login = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
 	try {
-		console.log("verification started");
-		const _id = req?.user?.userId
-		console.log(req.user);
+		const _id = req?.user?.userId;
 		console.log(_id);
-		if (!_id) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid Token')
-		const user = await mongooseAbstract.findOne({ _id }, 'isVerified')
-		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid User ID')
-		if (user.isVerified) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('User Already verified')
-		await mongooseAbstract.updateOne(_id, { isVerified: true })
-		return res.sendStatus(constant.RESPONSE.OK.STATUS)
+		if (!_id) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid Token');
+		const user = await mongooseAbstract.findOne({ _id }, 'isVerified');
+		console.log(user);
+		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid User ID');
+		if (user.isVerified) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('User Already verified');
+		await mongooseAbstract.updateOne(_id, { isVerified: true });
+		return res.sendStatus(constant.RESPONSE.OK.STATUS);
 	} catch (error) {
 		console.log(error)
 		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
