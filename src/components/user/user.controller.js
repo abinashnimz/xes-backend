@@ -59,19 +59,46 @@ export const login = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
 	try {
-		console.log("verification started");
-		const _id = req?.user?.userId
-		console.log(req.user);
+		const _id = req?.user?.userId;
 		console.log(_id);
-		if (!_id) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid Token')
-		const user = await mongooseAbstract.findOne({ _id }, 'isVerified')
-		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid User ID')
-		if (user.isVerified) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('User Already verified')
-		await mongooseAbstract.updateOne(_id, { isVerified: true })
-		return res.sendStatus(constant.RESPONSE.OK.STATUS)
+		if (!_id) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid Token');
+		const user = await mongooseAbstract.findOne({ _id }, 'isVerified');
+		console.log(user);
+		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid User ID');
+		if (user.isVerified) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('User Already verified');
+		await mongooseAbstract.updateOne(_id, { isVerified: true });
+		return res.sendStatus(constant.RESPONSE.OK.STATUS);
 	} catch (error) {
 		console.log(error)
 		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
 		return res.sendStatus(constant.RESPONSE.ERROR.STATUS)
+	}
+}
+
+export const sendPasswordVerification = async (req, res) => {
+	try {
+		const validatedData = await UserValidation.sendPasswordVerification.validateAsync(req.body);
+		const { data } = validatedData;
+		const user = await mongooseAbstract.findOne({ email: data.email });
+		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json({ type: 'email-error', message: 'Email not exist in database' });
+		const emailToken = AuthService.getPasswordRecoveryToken(user);
+		EmailService.sendPasswordRecoveryMail(user.username, emailToken, user.email);
+		return res.status(constant.RESPONSE.OK.STATUS).send({ type: 'success', message: 'Password recovery mail send Successfully' });
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+export const resetPassword = async (req, res) => {
+	try {
+		const validatedData = await UserValidation.resetPassword.validateAsync(req.body);
+		const { data } = validatedData;
+		console.log(`Validation Password Data: ${JSON.stringify(data)}`);
+		data.password = await AuthService.hashPasswordBcrypt(data.password);
+		await mongooseAbstract.updateOne(req.user.userId, { password: data.password });
+		return res.status(constant.RESPONSE.OK.STATUS).send({ type: 'success', message: 'Password Reset Successfully' });
+	} catch (error) {
+		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error);
+		return res.sendStatus(constant.RESPONSE.ERROR.STATUS);
 	}
 }

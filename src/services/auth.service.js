@@ -41,13 +41,11 @@ const verifyJwtToken = SECRET => (req, res, next) => {
 }
 
 
-// Email Verification Token and vierify token 
+// Email Verification Token and verify token 
 const generateJwtTokenEmailVerification = SECRET => ({ _id }) => jwt.sign({ userId: _id }, SECRET, { expiresIn: '1d' });
 
 const verifyJwtTokenEmailVerification = SECRET => (req, res, next) => {
-	console.log("Email verification middlware start");
-	console.log(req.query.token);
-	const authHeader = req.headers.authorization
+	const authHeader = req.headers.authorization;
 	console.log(authHeader);
 	if (!authHeader) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json('No JWT token provided');
 	const token = getToken(authHeader);
@@ -56,10 +54,27 @@ const verifyJwtTokenEmailVerification = SECRET => (req, res, next) => {
 		if (err) return res.sendStatus(constant.RESPONSE.UNAUTHORIZED.STATUS);
 		if (!data?.userId) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json('No user id found in token');
 		req['user'] = data;
-		console.log("Email verification middlware end")
 		next();
 	});
 }
+
+//Password Reset Token and verify token
+
+const generatePasswordRecoveryToken = SECRET => ({ _id }) => jwt.sign( { userId: _id, type: "password-recovery" }, SECRET, { expiresIn: '1d' });
+const verifyPasswordRecoveryToken = SECRET => (req, res, next) => {
+	const authHeader = req.headers.authorization;
+	console.log(authHeader);
+	if (!authHeader) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json('No JWT token provided');
+	const token = getToken(authHeader);
+	console.log(token);
+	jwt.verify(token, SECRET, (err, data) => {
+		if (err) return res.sendStatus(constant.RESPONSE.UNAUTHORIZED.STATUS);
+		if(!data?.userId) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json('No user id found in token');
+		req['user'] = data;
+		next();
+	});
+} 
+ 
 
 
 
@@ -73,3 +88,7 @@ export const [generateAuthToken, verifyAuthToken] = useJwt(constant.JWT_SECRET);
 //Email Verification Auth Service
 const useEmailJwt = SECRET => [generateJwtTokenEmailVerification(SECRET), verifyJwtTokenEmailVerification(SECRET)];
 export const [getEmailVerificationToken, verifyEmailVerificationToken] = useEmailJwt(constant.JWT_SECRET);
+
+//Password Recovery Auth Service
+const usePasswordRecoveryJwt = SECRET => [generatePasswordRecoveryToken(SECRET), verifyPasswordRecoveryToken(SECRET)];
+export const [getPasswordRecoveryToken, verifyJwtPasswordRecoveryToken] = usePasswordRecoveryJwt(constant.JWT_SECRET);
