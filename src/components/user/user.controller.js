@@ -25,7 +25,7 @@ export const signup = async (req, res) => {
 		const emailToken = AuthService.getEmailVerificationToken(createdUser);
 		console.log(`Email token from user-controller: ${emailToken}`);
 		EmailService.sendEmailVerificationMail(createdUser.username, emailToken, createdUser.email);
-		res.status(constant.RESPONSE.OK.STATUS).setHeader("Authorization", `Bearer ${emailToken}`).send({ message: 'Registration Successful' });
+		res.status(constant.RESPONSE.OK.STATUS).setHeader("Authorization", `Bearer ${emailToken}`).send({ message: 'A verification mail sent to your email' });
 	} catch (error) {
         console.log(error);
 		if(error) res.status(400).send(error);
@@ -40,10 +40,12 @@ export const login = async (req, res) => {
 		const criteria = {email:validatedData.criteria.email};
 		console.log(validatedData);
 		const user = await mongooseAbstract.findOne(criteria);
-		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json({ message: 'User account doesn\'t exist!', type: 'email-error' })
+		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json({ message: 'User account doesn\'t exist!', type: 'email-error' });
 		const isUserValid = await AuthService.comparePasswordBcrypt(validatedData.criteria.password, user.password)
-		if (!isUserValid) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json({ message: 'Incorrect Password', type: 'password-error' })
+		if (!isUserValid) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json({ message: 'Incorrect Password', type: 'password-error' });
 		//Email verification login goes here
+		const isUserVerified = user.isVerified;
+		if (!isUserVerified) return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json({ message: 'Please verify you email', type: 'verification-pending' });
 		if (user.isBanned) {
 			return res.status(constant.RESPONSE.UNAUTHORIZED.STATUS).json({ message: 'You are banned! Please contact admin', type: 'email-error' })
 		}
@@ -65,9 +67,9 @@ export const verifyEmail = async (req, res) => {
 		const user = await mongooseAbstract.findOne({ _id }, 'isVerified');
 		console.log(user);
 		if (!user) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('Invalid User ID');
-		if (user.isVerified) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json('User Already verified');
+		if (user.isVerified) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json({ message: 'User already verified', type: 'email verification' });
 		await mongooseAbstract.updateOne(_id, { isVerified: true });
-		return res.sendStatus(constant.RESPONSE.OK.STATUS);
+		return res.status(constant.RESPONSE.OK.STATUS).json({ message: 'Email verification successful', type: 'email verification' });
 	} catch (error) {
 		console.log(error)
 		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)
