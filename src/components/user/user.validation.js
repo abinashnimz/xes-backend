@@ -8,11 +8,23 @@ export const signup = Joi.object({
 		email: Joi.string().email().required(),
 		password: Joi.string().min(8).required()
 	}).required()
-}).required()
+}).required();
 
 export const login = Joi.object({
 	criteria: Joi.object({
 		email: Joi.string().email().required(),
 		password: Joi.string().required()
 	}).required()
-}).required()
+}).required();
+
+export const sendPasswordVerification = Joi.object({
+	data: Joi.object({
+		email: Joi.string().required(),
+	}).required()
+}).required();
+
+export const resetPassword = Joi.object({
+	data: Joi.object({
+		password: Joi.string().required()
+	}).required()
+}).required();
