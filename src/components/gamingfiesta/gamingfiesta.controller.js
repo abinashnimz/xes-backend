@@ -15,12 +15,18 @@ export const create = async (req, res) => {
 	try {
         const validatedData = await GamingFiestaValidation.create.validateAsync(req.body);
 		const { data } = validatedData;
-		const createdUser = await mongooseAbstract.create(data).then(user => user.toObject());
-        if(!createdUser){
-            res.status(constant.RESPONSE.ERROR.STATUS);
-        }
-        if(createdUser){
-            res.status(constant.RESPONSE.OK.STATUS).json({ message : 'Tournament Joined Successfully.' });
+        console.log(data);
+        const sameUSers = await mongooseAbstract.findAll({username : data.username, email : data.email});
+        const hasSameGame = sameUSers.some(item => item.gameName === data.gameName);
+        if(hasSameGame) res.status(constant.RESPONSE.ERROR.STATUS).json({message : "You have already registered"});
+        else{
+            const createdUser = await mongooseAbstract.create(data).then(user => user.toObject());
+            if(!createdUser){
+                res.status(constant.RESPONSE.ERROR.STATUS);
+            }
+            if(createdUser){
+                res.status(constant.RESPONSE.OK.STATUS).json({ message : 'Tournament Joined Successfully.' });
+            }
         }
 	} catch (error) {
         console.log(error);
