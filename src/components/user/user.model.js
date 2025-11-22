@@ -6,8 +6,7 @@ const UserSchema = new Schema({
     username: { type: String, unique: true, sparse: true },
     email: { type: String, unique: true, sparse: true },
     password: String,
-    firstName: String,
-    lastName: String,
+    fullName: String,
     aboutMe: String,
     phone: String,
     country: String,
@@ -21,12 +20,16 @@ const UserSchema = new Schema({
     googleSocial: Object,
     steamSocial: Object,
     discordSocial: Object,
-    gameIds: [{
-        _id: false,
-        game: { type: Schema.Types.ObjectId, ref: 'Game' },
-        gameId: String,
-        gameIgn: String
-    }],
+    gameName: [{
+        type:String,
+    }
+    ],
+    // gameIds: [{
+    //     _id: false,
+    //     game: { type: Schema.Types.ObjectId, ref: 'Game' },
+    //     gameId: String,
+    //     gameIgn: String
+    // }],
     currency: Object,
     role: { type: Schema.Types.ObjectId, ref: 'Role' },
     metaData: Object,

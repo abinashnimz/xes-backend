@@ -51,7 +51,7 @@ export const login = async (req, res) => {
 		}
 		const token = AuthService.generateAuthToken(user);
 		console.log(`Token is: ${token}`);
-		return res.json({ ...pick(['username', 'role', '_id'], user), token });
+		return res.json({ ...pick(['username', 'email', 'role', '_id', 'country', 'fullName'], user), token });
 	} catch (error) {
 		console.log(error)
 		if (constant.APP_DEBUG) return res.status(constant.RESPONSE.BAD_REQUEST.STATUS).json(error)

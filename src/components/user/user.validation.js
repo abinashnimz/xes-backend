@@ -6,6 +6,8 @@ export const signup = Joi.object({
 	data: Joi.object({
 		username: Joi.string().pattern(/^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/).required(),
 		email: Joi.string().email().required(),
+		fullName: Joi.string().required(),
+		country: Joi.string().required(),
 		password: Joi.string().min(8).required()
 	}).required()
 }).required();
